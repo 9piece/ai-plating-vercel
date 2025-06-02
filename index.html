@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 智能摆盘图像生成器</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2em; }
+    input, select, button { width: 100%; padding: 0.8em; margin-top: 1em; font-size: 1em; }
+    img { margin-top: 2em; width: 100%; border-radius: 8px; }
+    .loading { font-style: italic; color: #888; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h2>🍽 AI 智能摆盘图像生成器</h2>
+  <label>菜名：</label>
+  <input type="text" id="dish" placeholder="例如：Tomato scrambled eggs" />
+
+  <label>风格：</label>
+  <select id="style">
+    <option value="minimalist Japanese style">简约日式</option>
+    <option value="traditional Chinese home style">中式家常</option>
+    <option value="luxurious French plating">法式精致</option>
+    <option value="playful children’s style">儿童趣味</option>
+    <option value="healthy fitness meal style">健身便当</option>
+  </select>
+
+  <button onclick="generateImage()">生成图像</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function generateImage() {
+      const dish = document.getElementById("dish").value.trim();
+      const style = document.getElementById("style").value;
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "<p class='loading'>正在生成图像，请稍候...</p>";
+
+      const prompt = `${dish}, plated in ${style}, on a ceramic plate, top-down view, square image, food photography, soft lighting`;
+
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await res.json();
+        if (data.image) {
+          resultDiv.innerHTML = `<img src="${data.image}" /><p>📝 Prompt: ${prompt}</p>`;
+        } else {
+          resultDiv.innerHTML = `<p class='error'>❌ 生成失败：${data.error}</p>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<p class='error'>❌ 请求出错：${err.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
