@@ -1,4 +1,3 @@
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -24,6 +23,12 @@ export default async function handler(req, res) {
     });
 
     const creation = await createResponse.json();
+
+    // ✅ 错误处理：如果 creation.urls 或 creation.urls.get 不存在，返回错误信息
+    if (!creation.urls || !creation.urls.get) {
+      return res.status(500).json({ error: "Replicate API 返回结构异常", detail: creation });
+    }
+
     const statusUrl = creation.urls.get;
 
     for (let i = 0; i < 20; i++) {
@@ -39,14 +44,17 @@ export default async function handler(req, res) {
       }
 
       if (statusData.status === "failed") {
-        return res.status(500).json({ error: "Generation failed" });
+        return res.status(500).json({ error: "图像生成失败", detail: statusData });
       }
 
       await new Promise((r) => setTimeout(r, 1500));
     }
 
-    return res.status(500).json({ error: "Timeout" });
+    return res.status(500).json({ error: "生成超时，请稍后重试" });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 }
+
+// ====== 文件：/index.html ======
+（保持不变）
