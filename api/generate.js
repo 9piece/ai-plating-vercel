@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const creation = await createResponse.json();
 
-    // ✅ 错误处理：如果 creation.urls 或 creation.urls.get 不存在，返回错误信息
+    // ✅ 加入结构检测，避免 undefined 错误
     if (!creation.urls || !creation.urls.get) {
       return res.status(500).json({ error: "Replicate API 返回结构异常", detail: creation });
     }
@@ -55,6 +55,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
-
-// ====== 文件：/index.html ======
-（保持不变）
